@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/pet.dart';
+import '../services/database_helper.dart';
+import 'package:uuid/uuid.dart';
 
 class PetProfileForm extends StatefulWidget {
   final Pet? pet;
@@ -179,10 +181,41 @@ class _PetProfileFormState extends State<PetProfileForm> {
     );
   }
 
-  void _submitForm() {
+  void _submitForm() async {
     if (_formKey.currentState!.validate()) {
-      // TODO: Implement save functionality with state management
-      Navigator.pop(context);
+      try {
+        final pet = Pet(
+          id: widget.pet?.id ?? const Uuid().v4(),
+          name: _nameController.text,
+          age: int.parse(_ageController.text),
+          breed: _breedController.text,
+          gender: _selectedGender,
+          isNeutered: _isNeutered,
+          weight: double.parse(_weightController.text),
+          allergies: _allergiesController.text,
+          specialNotes: _specialNotesController.text,
+          imageUrl: widget.pet?.imageUrl,
+        );
+
+        if (widget.pet == null) {
+          await DatabaseHelper.instance.insertPet(pet);
+        } else {
+          await DatabaseHelper.instance.updatePet(pet);
+        }
+
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('저장되었습니다')),
+          );
+          Navigator.pop(context, true);
+        }
+      } catch (e) {
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('저장 중 오류가 발생했습니다: $e')),
+          );
+        }
+      }
     }
   }
 

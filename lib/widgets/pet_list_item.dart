@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:my_pet_doctor/screens/pet_status_screen.dart';
 import '../models/pet.dart';
 import '../screens/pet_detail_screen.dart';
 
@@ -69,7 +70,7 @@ class PetListItem extends StatelessWidget {
         onTap: () => Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (_) => PetDetailScreen(pet: pet),
+            builder: (_) => PetStatusScreen(pet: pet),
           ),
         ),
       ),

@@ -30,7 +30,7 @@ class Pet {
       'age': age,
       'breed': breed,
       'gender': gender,
-      'isNeutered': isNeutered,
+      'isNeutered': isNeutered ? 1 : 0,  // SQLite는 boolean을 1/0으로 저장
       'weight': weight,
       'imageUrl': imageUrl,
       'allergies': allergies,
@@ -45,8 +45,8 @@ class Pet {
       age: map['age'],
       breed: map['breed'],
       gender: map['gender'],
-      isNeutered: map['isNeutered'],
-      weight: map['weight'],
+      isNeutered: map['isNeutered'] == 1,  // SQLite의 1/0을 boolean으로 변환
+      weight: map['weight'].toDouble(),  // SQLite에서 숫자를 가져올 때 필요
       imageUrl: map['imageUrl'],
       allergies: map['allergies'],
       specialNotes: map['specialNotes'],
