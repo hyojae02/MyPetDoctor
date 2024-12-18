@@ -7,8 +7,6 @@ class Pet {
   bool isNeutered;
   double weight;
   String? imageUrl;
-  String? allergies;
-  String? specialNotes;
 
   Pet({
     required this.id,
@@ -19,8 +17,6 @@ class Pet {
     required this.isNeutered,
     required this.weight,
     this.imageUrl,
-    this.allergies,
-    this.specialNotes,
   });
 
   Map<String, dynamic> toMap() {
@@ -30,26 +26,45 @@ class Pet {
       'age': age,
       'breed': breed,
       'gender': gender,
-      'isNeutered': isNeutered,
+      'isNeutered': isNeutered ? 1 : 0,
       'weight': weight,
-      'imageUrl': imageUrl,
-      'allergies': allergies,
-      'specialNotes': specialNotes,
+      'imageUrl': imageUrl ?? '',  // Convert null to empty string for SQLite
     };
   }
 
   factory Pet.fromMap(Map<String, dynamic> map) {
     return Pet(
-      id: map['id'],
-      name: map['name'],
-      age: map['age'],
-      breed: map['breed'],
-      gender: map['gender'],
-      isNeutered: map['isNeutered'],
-      weight: map['weight'],
-      imageUrl: map['imageUrl'],
-      allergies: map['allergies'],
-      specialNotes: map['specialNotes'],
+      id: map['id'] as String,
+      name: map['name'] as String,
+      age: map['age'] as int,
+      breed: map['breed'] as String,
+      gender: map['gender'] as String,
+      isNeutered: (map['isNeutered'] as int) == 1,
+      weight: (map['weight'] as num).toDouble(),
+      imageUrl: map['imageUrl'] != '' ? map['imageUrl'] as String? : null,  // Convert empty string back to null
+    );
+  }
+
+  // Add copy method for easy cloning/updating
+  Pet copyWith({
+    String? id,
+    String? name,
+    int? age,
+    String? breed,
+    String? gender,
+    bool? isNeutered,
+    double? weight,
+    String? imageUrl,
+  }) {
+    return Pet(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      age: age ?? this.age,
+      breed: breed ?? this.breed,
+      gender: gender ?? this.gender,
+      isNeutered: isNeutered ?? this.isNeutered,
+      weight: weight ?? this.weight,
+      imageUrl: imageUrl ?? this.imageUrl,
     );
   }
 }

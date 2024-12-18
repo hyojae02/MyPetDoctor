@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import '../models/pet.dart';
 import '../widgets/pet_list_item.dart';
-import '../services/database_helper.dart';  // DatabaseHelper import 추가
+import '../services/database_helper.dart';
 import 'pet_profile_form.dart';
 
-// StatelessWidget에서 StatefulWidget으로 변경
 class PetListScreen extends StatefulWidget {
   const PetListScreen({Key? key}) : super(key: key);
 
@@ -13,31 +12,36 @@ class PetListScreen extends StatefulWidget {
 }
 
 class _PetListScreenState extends State<PetListScreen> {
+  final GlobalKey<_PetListState> _petListKey = GlobalKey<_PetListState>();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('나의 반려동물'),
+        title: const Text('My Pet'),
+        backgroundColor: Colors.white,
+        foregroundColor: Colors.black,
         actions: [
           IconButton(
             icon: const Icon(Icons.add),
             onPressed: () async {
-              // 새 반려동물 추가 후 화면 갱신을 위해 await 추가
-              await Navigator.push(
+              final result = await Navigator.push(
                 context,
                 MaterialPageRoute(builder: (_) => const PetProfileForm()),
               );
-              setState(() {}); // 화면 갱신
+              if (result == true) {
+                _petListKey.currentState?.refreshPets(); // PetList 새로고침
+              }
             },
           ),
         ],
       ),
-      body: const PetList(),
+      body: PetList(key: _petListKey),
+      backgroundColor: Colors.white,
     );
   }
 }
 
-// StatelessWidget에서 StatefulWidget으로 변경
 class PetList extends StatefulWidget {
   const PetList({Key? key}) : super(key: key);
 
@@ -51,10 +55,10 @@ class _PetListState extends State<PetList> {
   @override
   void initState() {
     super.initState();
-    _refreshPets();
+    refreshPets();
   }
 
-  void _refreshPets() {
+  void refreshPets() {  // _refreshPets를 refreshPets로 변경
     setState(() {
       _petsFuture = DatabaseHelper.instance.getAllPets();
     });
@@ -78,7 +82,7 @@ class _PetListState extends State<PetList> {
         if (pets.isEmpty) {
           return const Center(
             child: Text(
-              '반려동물을 추가해주세요!',
+              'Add Your Pet!',
               style: TextStyle(fontSize: 16),
             ),
           );
@@ -87,24 +91,39 @@ class _PetListState extends State<PetList> {
         return ListView.builder(
           itemCount: pets.length,
           itemBuilder: (context, index) {
-            return PetListItem(
-              key: Key(pets[index].id),
-              pet: pets[index],
-              onEdit: () async {
-                // 반려동물 정보 수정 후 화면 갱신
-                await Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => PetProfileForm(pet: pets[index]),
+            return Container(
+              margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(12),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.1),
+                    spreadRadius: 1,
+                    blurRadius: 6,
+                    offset: const Offset(0, 3),
                   ),
-                );
-                _refreshPets();
-              },
-              onDelete: () async {
-                // 반려동물 삭제 기능 추가
-                await DatabaseHelper.instance.deletePet(pets[index].id);
-                _refreshPets();
-              },
+                ],
+              ),
+              child: PetListItem(
+                key: Key(pets[index].id),
+                pet: pets[index],
+                onEdit: () async {
+                  final result = await Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => PetProfileForm(pet: pets[index]),
+                    ),
+                  );
+                  if (result == true) {
+                    refreshPets();  // _refreshPets를 refreshPets로 변경
+                  }
+                },
+                onDelete: () async {
+                  await DatabaseHelper.instance.deletePet(pets[index].id);
+                  refreshPets();  // _refreshPets를 refreshPets로 변경
+                },
+              ),
             );
           },
         );

@@ -1,9 +1,14 @@
-// main.dart
-
 import 'package:flutter/material.dart';
 import 'screens/pet_list_screen.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
-void main() {
+Future<void> main() async {
+  // 플러터 바인딩 초기화를 보장
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // .env 파일 로드
+  await dotenv.load(fileName: ".env");
+
   runApp(const MyPetApp());
 }
 
@@ -16,9 +21,10 @@ class MyPetApp extends StatelessWidget {
       title: '반려동물 관리',
       theme: ThemeData(
         primarySwatch: Colors.blue,
-        useMaterial3: true,  // Material 3 디자인 사용
+        useMaterial3: true,
       ),
-      home: const PetListScreen(),  // 시작 화면을 PetListScreen으로 설정
+      debugShowCheckedModeBanner: false,
+      home: const PetListScreen(),
     );
   }
 }

@@ -44,16 +44,6 @@ class PetDetailScreen extends StatelessWidget {
                 ],
               ),
             ),
-            if (pet.allergies != null && pet.allergies!.isNotEmpty)
-              _buildInfoCard(
-                title: '알레르기',
-                content: Text(pet.allergies!),
-              ),
-            if (pet.specialNotes != null && pet.specialNotes!.isNotEmpty)
-              _buildInfoCard(
-                title: '특이사항',
-                content: Text(pet.specialNotes!),
-              ),
           ],
         ),
       ),

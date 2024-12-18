@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import '../models/pet.dart';
-import '../screens/pet_detail_screen.dart';
+import '../screens/pet_status_screen.dart';
+import 'dart:io';
 
 class PetListItem extends StatelessWidget {
   final Pet pet;
-  final VoidCallback onEdit;    // 수정 콜백 추가
-  final VoidCallback onDelete;  // 삭제 콜백 추가
+  final VoidCallback onEdit;
+  final VoidCallback onDelete;
 
   const PetListItem({
     super.key,
@@ -16,14 +17,18 @@ class PetListItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
+    return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: ListTile(
+        tileColor: Colors.white,
         leading: CircleAvatar(
-          backgroundImage: pet.imageUrl != null
-              ? NetworkImage(pet.imageUrl!)
+          backgroundColor: Colors.purple[100],
+          backgroundImage: pet.imageUrl != null && pet.imageUrl!.isNotEmpty
+              ? FileImage(File(pet.imageUrl!))
               : null,
-          child: pet.imageUrl == null ? Text(pet.name[0]) : null,
+          child: (pet.imageUrl == null || pet.imageUrl!.isEmpty)
+              ? const Icon(Icons.pets, color: Colors.white)
+              : null,
         ),
         title: Text(pet.name),
         subtitle: Text('${pet.breed}, ${pet.age}세'),
@@ -38,7 +43,6 @@ class PetListItem extends StatelessWidget {
               icon: const Icon(Icons.delete),
               color: Colors.red,
               onPressed: () {
-                // 삭제 확인 다이얼로그 표시
                 showDialog(
                   context: context,
                   builder: (context) => AlertDialog(
@@ -66,12 +70,17 @@ class PetListItem extends StatelessWidget {
             ),
           ],
         ),
-        onTap: () => Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (_) => PetDetailScreen(pet: pet),
-          ),
-        ),
+        onTap: () async {
+          final result = await Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => PetStatusScreen(pet: pet),
+            ),
+          );
+          if (result == true) {
+            onEdit(); // PetStatusScreen에서 수정이 있었다면 리스트 새로고침
+          }
+        },
       ),
     );
   }
